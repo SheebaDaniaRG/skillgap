@@ -1,0 +1,330 @@
+{% include "sidebar.html" %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Role Explorer — SkillGap.in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #050505;
+  --bg2:      #0d0d0d;
+  --card:     rgba(255,255,255,0.03);
+  --card-b:   rgba(255,255,255,0.07);
+  --primary:  #ff6b00;
+  --primary2: #ff8c38;
+  --primary3: #ff4500;
+  --success:  #22c55e;
+  --txt:      #f0ede8;
+  --txt2:     #9a9590;
+  --txt3:     #5a5652;
+  --sidebar-w: 260px;
+  --radius:   14px;
+  --radius-lg: 20px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--txt);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.025; pointer-events: none; z-index: 9999;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--primary3); border-radius: 2px; }
+
+.sidebar {
+  width: var(--sidebar-w); height: 100vh;
+  position: fixed; top: 0; left: 0;
+  background: rgba(13,13,13,0.6);
+  backdrop-filter: blur(28px) saturate(1.4);
+  -webkit-backdrop-filter: blur(28px) saturate(1.4);
+  border-right: 1px solid rgba(255,107,0,0.1);
+  padding: 32px 24px;
+  display: flex; flex-direction: column; gap: 8px;
+  z-index: 100; transform-style: preserve-3d; perspective: 800px; overflow: hidden;
+}
+.sidebar::before {
+  content: ''; position: absolute; top: -60%; left: -40%; width: 180%; height: 180%;
+  background: radial-gradient(ellipse at 30% 40%, rgba(255,107,0,0.06), transparent 60%);
+  pointer-events: none;
+}
+.sidebar-logo { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.sidebar-logo h1 {
+  font-size: 22px; font-weight: 800; letter-spacing: -0.5px;
+  background: linear-gradient(135deg, var(--primary), var(--primary2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.sidebar-logo span { font-size: 11px; color: var(--txt3); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-top: 2px; }
+.nav-section { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--txt3); padding: 12px 0 4px; }
+.sidebar a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; text-decoration: none;
+  color: var(--txt2); font-size: 13.5px; font-weight: 500;
+  border-radius: 10px; transition: all 0.2s ease; border: 1px solid transparent;
+}
+.sidebar a:hover, .sidebar a.active { background: rgba(255,107,0,0.08); color: var(--txt); border-color: rgba(255,107,0,0.15); }
+.sidebar a.active { background: rgba(255,107,0,0.12); color: var(--primary2); }
+.sidebar a .nav-icon { width: 18px; height: 18px; opacity: 0.6; flex-shrink: 0; }
+.sidebar a:hover .nav-icon, .sidebar a.active .nav-icon { opacity: 1; }
+.sidebar-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 11.5px; color: var(--txt3); }
+
+.main { margin-left: var(--sidebar-w); padding: 40px 44px; min-height: 100vh; }
+
+.page-header { margin-bottom: 36px; }
+.page-header .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--primary); margin-bottom: 6px; }
+.page-header h2 { font-size: 30px; font-weight: 800; letter-spacing: -0.6px; color: var(--txt); }
+.page-header h2 .accent { color: var(--primary); }
+
+/* ── ROLE CARDS GRID ── */
+.roles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
+}
+
+.role-card {
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  border-radius: var(--radius-lg);
+  padding: 24px 26px;
+  position: relative; overflow: hidden;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+  cursor: default;
+}
+
+.role-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,107,0,0.4), transparent);
+  opacity: 0; transition: opacity 0.3s ease;
+}
+
+.role-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--primary3), var(--primary2));
+  transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease;
+}
+
+.role-card:hover { border-color: rgba(255,107,0,0.25); transform: translateY(-5px); }
+.role-card:hover::before { opacity: 1; }
+.role-card:hover::after { transform: scaleX(1); }
+
+.role-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px; padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.role-name { font-size: 16px; font-weight: 800; color: var(--txt); letter-spacing: -0.3px; }
+
+.role-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,107,0,0.1); border: 1px solid rgba(255,107,0,0.2);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.skills-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--txt3); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+}
+.skills-label::before { content: ''; display: block; width: 10px; height: 2px; background: var(--success); border-radius: 1px; }
+
+.skills-wrap { display: flex; flex-wrap: wrap; gap: 7px; }
+
+.skill-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 11px; border-radius: 7px;
+  font-size: 12px; font-weight: 600;
+  background: rgba(34,197,94,0.08);
+  border: 1px solid rgba(34,197,94,0.18);
+  color: #4ade80;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: default;
+}
+.skill-tag:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 4px 14px rgba(34,197,94,0.2); }
+
+.skill-count {
+  position: absolute; top: 20px; right: 20px;
+  font-size: 11px; font-weight: 700; color: var(--primary2);
+  background: rgba(255,107,0,0.1); border: 1px solid rgba(255,107,0,0.2);
+  border-radius: 6px; padding: 3px 8px;
+}
+
+/* ── DANCING LETTERS ── */
+.dance-letter { display: inline-block; cursor: default; transform-origin: bottom center; }
+
+/* ── REVEAL ── */
+.reveal { opacity: 0; transform: translateY(22px); }
+
+#cursor-glow {
+  position: fixed; width: 320px; height: 320px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,107,0,0.05) 0%, transparent 70%);
+  pointer-events: none; z-index: 1; transform: translate(-50%,-50%);
+}
+
+.particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.particle  { position: absolute; width: 1px; height: 1px; background: var(--primary); border-radius: 50%; opacity: 0; }
+
+@media (max-width: 900px) {
+  .sidebar { transform: translateX(-100%); }
+  .main { margin-left: 0; padding: 28px 20px; }
+  .roles-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div id="cursor-glow"></div>
+<div class="particles" id="particles"></div>
+
+{% include "sidebar.html" %}
+
+<main class="main">
+
+  <div class="page-header reveal">
+    <div class="eyebrow">Role Intelligence</div>
+    <h2><span class="dance-target">Popular <span class="accent">Roles</span></span></h2>
+  </div>
+
+  <div class="roles-grid">
+    {% for r in roles %}
+    <div class="role-card reveal">
+      <span class="skill-count">{{ r.skills|length }} skills</span>
+      <div class="role-header">
+        <div class="role-name dance-target">{{ r.name }}</div>
+        <div class="role-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+      </div>
+      <div class="skills-label">Required Skills</div>
+      <div class="skills-wrap">
+        {% for s in r.skills %}
+          <span class="skill-tag dance-target">{{ s }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+</main>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+const glow = document.getElementById('cursor-glow');
+document.addEventListener('mousemove', e => {
+  gsap.to(glow, { x: e.clientX, y: e.clientY, duration: 0.5, ease: 'power2.out' });
+});
+
+const sidebar = document.getElementById('sidebar');
+document.addEventListener('mousemove', e => {
+  const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+  gsap.to(sidebar, {
+    rotateX: ((e.clientY - cy) / cy) * 3.5,
+    rotateY: ((e.clientX - cx) / cx) * -2.5,
+    duration: 1.2, ease: 'power2.out', transformPerspective: 900
+  });
+});
+
+/* 3D card tilt on mousemove */
+document.querySelectorAll('.role-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    const x = e.clientX - r.left - r.width  / 2;
+    const y = e.clientY - r.top  - r.height / 2;
+    gsap.to(card, {
+      rotateX: (-y / r.height) * 12,
+      rotateY: ( x / r.width)  * 12,
+      transformPerspective: 800,
+      duration: 0.4, ease: 'power2.out'
+    });
+  });
+  card.addEventListener('mouseleave', () => {
+    gsap.to(card, { rotateX: 0, rotateY: 0, duration: 0.6, ease: 'power3.out' });
+  });
+});
+
+function makeDance(el) {
+  const text = el.textContent;
+  el.innerHTML = '';
+  [...text].forEach(ch => {
+    const span = document.createElement('span');
+    span.className = 'dance-letter';
+    span.textContent = ch === ' ' ? '\u00A0' : ch;
+    el.appendChild(span);
+  });
+  el.addEventListener('mouseenter', () => {
+    el.querySelectorAll('.dance-letter').forEach((l, i) => {
+      gsap.fromTo(l,
+        { y: 0, rotateZ: 0, scale: 1 },
+        { y: -10, rotateZ: gsap.utils.random(-18,18), scale: gsap.utils.random(1.05,1.18),
+          duration: 0.35, delay: i * 0.03, ease: 'back.out(2)', yoyo: true, repeat: 1 }
+      );
+    });
+  });
+}
+document.querySelectorAll('.dance-target').forEach(makeDance);
+
+gsap.utils.toArray('.reveal').forEach((el, i) => {
+  gsap.fromTo(el, { opacity: 0, y: 28 },
+    { opacity: 1, y: 0, duration: 0.7, delay: i * 0.06, ease: 'power3.out',
+      scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' } }
+  );
+});
+
+gsap.fromTo('.skill-tag',
+  { opacity: 0, scale: 0.7, y: 8 },
+  { opacity: 1, scale: 1, y: 0, stagger: 0.04, duration: 0.45, ease: 'back.out(2)', delay: 0.5 }
+);
+
+gsap.fromTo('.sidebar a',
+  { opacity: 0, x: -18 },
+  { opacity: 1, x: 0, stagger: 0.07, duration: 0.5, ease: 'power3.out', delay: 0.2 }
+);
+
+(function() {
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 24; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.top  = Math.random() * 100 + '%';
+    container.appendChild(p);
+    gsap.to(p, {
+      opacity: 0.5 + Math.random() * 0.5, scale: 2 + Math.random() * 4,
+      y: '-=' + (60 + Math.random() * 120), x: (Math.random() - 0.5) * 80,
+      duration: 4 + Math.random() * 8, delay: Math.random() * 6,
+      repeat: -1, yoyo: true, ease: 'sine.inOut'
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
