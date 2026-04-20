@@ -1,7 +1,7 @@
 import re
 from collections import Counter
 from .skills_list import SKILLS
-from PyPDF2 import PdfReader
+from pypdf import PdfReader
 
 
 def extract_text_from_pdf(file):
