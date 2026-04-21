@@ -258,6 +258,37 @@ body::before {
   border-radius: 1px;
 }
 
+/* live badge on card-title */
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  background: rgba(255,107,0,0.1);
+  border: 1px solid rgba(255,107,0,0.2);
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--primary2);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-left: auto;
+}
+
+.live-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 6px var(--primary);
+  animation: pulse-dot 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.7); }
+}
+
 /* ─── FORM / INPUT ───────────────────────────────────────── */
 .input-grid {
   display: grid;
@@ -565,12 +596,50 @@ body::before {
 }
 
 /* ─── JOBS ───────────────────────────────────────────────── */
+/* job link wrapper — resets anchor styles, delegates hover to .job-item */
+.job-item-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 10px;
+}
+
+.job-item-link:last-child .job-item { margin-bottom: 0; }
+
+.job-item-body { flex: 1; min-width: 0; }
+
+.job-apply-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  background: rgba(255,107,0,0.1);
+  border: 1px solid rgba(255,107,0,0.2);
+  border-radius: 8px;
+  color: var(--primary2);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
+}
+
+.job-item-link:hover .job-apply-btn {
+  background: var(--primary);
+  color: #fff;
+  transform: scale(1.04);
+}
+
 .job-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   padding: 16px 18px;
   background: rgba(255,255,255,0.02);
   border: 1px solid rgba(255,255,255,0.06);
   border-radius: var(--radius);
-  margin-bottom: 10px;
+  margin-bottom: 0;
   transition: border-color 0.2s, transform 0.2s;
   position: relative;
   overflow: hidden;
@@ -599,6 +668,20 @@ body::before {
 
 .job-company { font-size: 13px; font-weight: 600; color: var(--primary2); }
 .job-address { font-size: 12px; color: var(--txt3); margin-top: 2px; }
+
+.jobs-empty {
+  text-align: center;
+  padding: 32px 0;
+  color: var(--txt3);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.jobs-empty svg {
+  display: block;
+  margin: 0 auto 10px;
+  opacity: 0.3;
+}
 
 /* ─── PROGRESS BAR ───────────────────────────────────────── */
 .progress-wrap {
@@ -946,17 +1029,38 @@ body::before {
 
   </div>
 
-  <!-- JOBS -->
+  <!-- ─── 🔥 LIVE JOBS SECTION ─── -->
   <div class="card reveal">
-    <div class="card-title">Live Jobs — {{ city }}</div>
-    {% for j in jobs %}
-    <div class="job-item">
-      <div class="job-title dance-target">{{ j.title }}</div>
-      <div class="job-company">{{ j.company }}</div>
-      <div class="job-address">📍 {{ j.address }}</div>
+    <div class="card-title">
+      Live Jobs — {{ city }}
+      <span class="live-badge">Live</span>
     </div>
-    {% endfor %}
+    {% if jobs %}
+      {% for j in jobs %}
+      <a href="{{ j.url }}" target="_blank" rel="noopener noreferrer" class="job-item-link">
+        <div class="job-item">
+          <div class="job-item-body">
+            <div class="job-title dance-target">{{ j.title }}</div>
+            <div class="job-company">{{ j.company }}</div>
+            <div class="job-address">
+              📍 {{ j.address|default:j.location }}
+            </div>
+          </div>
+          <span class="job-apply-btn">
+            Apply
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+          </span>
+        </div>
+      </a>
+      {% endfor %}
+    {% else %}
+      <div class="jobs-empty">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        No jobs found for this role / location
+      </div>
+    {% endif %}
   </div>
+  <!-- /LIVE JOBS -->
 
   <!-- CHART -->
   {% if chart %}

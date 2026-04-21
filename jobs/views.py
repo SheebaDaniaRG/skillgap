@@ -97,13 +97,19 @@ def skill_gap_view(request):
         # ===== JOBS =====
         jobs = get_jobs(role, city)
 
+        # 🔥 DEBUG (VERY IMPORTANT)
+        print("========== DEBUG ==========")
+        print("ROLE:", role)
+        print("CITY:", city)
+        print("JOBS RETURNED:", jobs)
+        print("===========================")
+
         # ===== CHART =====
         chart = generate_chart(missing_skills)
 
         # ===== ROADMAP =====
         roadmap = build_roadmap(missing_skills)
 
-    # 🔥 THIS IS WHAT YOU WERE MISSING EARLIER — FULL CONTEXT
     return render(request, "dashboard.html", {
         "score": score,
         "missing_skills": missing_skills,

@@ -10,55 +10,67 @@ ROLE_SKILLS = {
     ],
     "Backend Developer": [
         "Python", "Django", "SQL", "APIs", "Docker"
+    ],
+    "Machine Learning Engineer": [
+        "Python", "Machine Learning", "TensorFlow", "Pandas", "SQL"
     ]
 }
 
 
-# 🔥 NORMALIZE SKILLS (IMPORTANT)
+# 🔥 NORMALIZATION ENGINE (UPGRADED)
 def normalize(skill):
     skill = skill.strip().lower()
+
     mapping = {
+        # APIs
         "api": "apis",
         "rest api": "apis",
         "rest apis": "apis",
-        "sql": "sql",
-        "html": "html",
-        "css": "css",
+
+        # JS
         "js": "javascript",
+
+        # ML
+        "ml": "machine learning",
+        "ai": "machine learning",
+
+        # variations
+        "django basics": "django",
+        "python basics": "python",
     }
+
     return mapping.get(skill, skill)
 
 
-# 🔥 FORMAT OUTPUT (CLEAN DISPLAY)
+# 🔥 DISPLAY FORMAT
 def format_skill(skill):
     return skill.upper() if len(skill) <= 3 else skill.title()
 
 
-# 🔥 MAIN FUNCTION
+# 🔥 MAIN LOGIC
 def analyze_skill_gap(user_skills, role):
 
-    # normalize user input
+    # normalize input
     user_skills = [normalize(skill) for skill in user_skills]
 
-    # normalize required skills
     required = [normalize(s) for s in ROLE_SKILLS.get(role, [])]
 
-    required_set = set(required)
     user_set = set(user_skills)
+    required_set = set(required)
 
+    matched = list(user_set & required_set)
     missing = list(required_set - user_set)
-    matched = list(required_set & user_set)
 
-    # format for display
-    missing = [format_skill(s) for s in missing]
-    matched = [format_skill(s) for s in matched]
+    # format output
+    matched_formatted = [format_skill(s) for s in matched]
+    missing_formatted = [format_skill(s) for s in missing]
 
     # score
     score = int((len(matched) / len(required_set)) * 100) if required_set else 0
 
     return {
-        "missing": missing,
-        "matched": matched,
+        "matched": matched_formatted,
+        "missing": missing_formatted,
         "score": score
     }
 

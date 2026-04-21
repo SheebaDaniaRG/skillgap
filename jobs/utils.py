@@ -1,33 +1,13 @@
 import re
 from collections import Counter
-from .skills_list import SKILLS
 from pypdf import PdfReader
 
-
-def extract_text_from_pdf(file):
-    reader = PdfReader(file)
-    text = ""
-
-    for page in reader.pages:
-        text += page.extract_text() or ""
-
-    return text
+from .skills_list import SKILLS
 
 
-def extract_skills(text):
-    text = text.lower()
-    found = set()
-
-    for skill in SKILLS:
-        skill_lower = skill.lower()
-
-        # Strong matching (prevents random matches)
-        pattern = r'\b' + re.escape(skill_lower) + r'\b'
-
-        if re.search(pattern, text):
-            found.add(skill_lower)
-
-    return list(found)
+# ================= NORMALIZATION =================
+def normalize_skill(skill):
+    return skill.strip().lower()
 
 
 SKILL_ALIASES = {
@@ -42,7 +22,7 @@ def normalize_skills(skills):
     normalized = []
 
     for skill in skills:
-        skill = skill.lower().strip()
+        skill = normalize_skill(skill)
 
         if skill in SKILL_ALIASES:
             normalized.append(SKILL_ALIASES[skill])
@@ -52,16 +32,49 @@ def normalize_skills(skills):
     return list(set(normalized))
 
 
+# ================= PDF TEXT EXTRACTION =================
+def extract_text_from_pdf(file):
+    reader = PdfReader(file)
+    text = ""
+
+    for page in reader.pages:
+        text += page.extract_text() or ""
+
+    return text
+
+
+# ================= SKILL EXTRACTION =================
+def extract_skills(text):
+    text = text.lower()
+    found = set()
+
+    for skill in SKILLS:
+        skill_lower = skill.lower()
+
+        # Strong word boundary matching
+        pattern = r'\b' + re.escape(skill_lower) + r'\b'
+
+        if re.search(pattern, text):
+            found.add(skill_lower)
+
+    return list(found)
+
+
+# ================= DEMAND ANALYSIS =================
 def get_skill_demand(jobs):
     counter = Counter()
 
     for job in jobs:
-        for skill in job.skills.all():
-            counter[skill.name.lower().strip()] += 1
+        # ⚠️ defensive check (avoid crash if no skills field)
+        if hasattr(job, "skills"):
+            for skill in job.skills.all():
+                name = normalize_skill(skill.name)
+                counter[name] += 1
 
     return counter
 
 
+# ================= SKILL GAP =================
 def get_skill_gap(user_skills, jobs):
     user_skills = normalize_skills(user_skills)
     demand = get_skill_demand(jobs)
@@ -75,6 +88,7 @@ def get_skill_gap(user_skills, jobs):
     return sorted(gap.items(), key=lambda x: x[1], reverse=True)
 
 
+# ================= SCORE =================
 def calculate_score(user_skills, jobs):
     user_skills = normalize_skills(user_skills)
     demand = get_skill_demand(jobs)
@@ -92,6 +106,7 @@ def calculate_score(user_skills, jobs):
     return int((matched_weight / total_weight) * 100)
 
 
+# ================= RESOURCES =================
 SKILL_RESOURCES = {
     "python": "https://roadmap.sh/python",
     "django": "https://roadmap.sh/django",
@@ -103,13 +118,14 @@ SKILL_RESOURCES = {
 }
 
 
+# ================= RECOMMENDATIONS =================
 def get_recommendations(missing_skills):
     recommendations = []
 
     for skill, demand in missing_skills:
         resource = SKILL_RESOURCES.get(
             skill,
-            "https://www.google.com/search?q=" + skill
+            f"https://www.google.com/search?q=learn+{skill}"
         )
 
         recommendations.append({
@@ -121,10 +137,16 @@ def get_recommendations(missing_skills):
     return recommendations
 
 
+# ================= ROADMAP =================
 def generate_roadmap(missing_skills):
     roadmap = []
 
     for i, (skill, demand) in enumerate(missing_skills[:5], start=1):
-        roadmap.append(f"{i}. Learn {skill} (demand: {demand})")
+        roadmap.append({
+            "step": i,
+            "skill": skill,
+            "demand": demand,
+            "action": f"Learn {skill}"
+        })
 
     return roadmap

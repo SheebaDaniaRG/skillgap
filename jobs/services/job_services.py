@@ -1,48 +1,90 @@
-# 🔥 STATIC JOB DATA
+# ================= JOB DATA =================
 
-JOBS = [
-    {"title": "Full Stack Developer", "company": "Infosys", "location": "Bangalore", "address": "Electronic City Phase 1"},
-    {"title": "Backend Developer", "company": "TCS", "location": "Chennai", "address": "OMR Road"},
-    {"title": "Frontend Developer", "company": "Wipro", "location": "Hyderabad", "address": "Hitech City"},
-    {"title": "Full Stack Developer", "company": "Accenture", "location": "Pune", "address": "Hinjewadi Phase 2"},
-    {"title": "Backend Developer", "company": "Capgemini", "location": "Mumbai", "address": "Airoli"},
-    {"title": "Frontend Developer", "company": "HCL", "location": "Bangalore", "address": "Whitefield"},
+import random
+
+CITIES = ["Bangalore", "Hyderabad", "Mumbai", "Pune", "Chennai"]
+
+COMPANIES = [
+    "TCS", "Infosys", "Wipro", "HCL", "Zoho",
+    "Freshworks", "Capgemini", "Accenture",
+    "StartupX", "TechNova", "CodeLabs",
+    "DevWorks", "Cloudify", "NextGenSoft"
 ]
 
+JOB_TEMPLATES = {
+    "backend": [
+        "Backend Developer", "Python Developer", "Django Developer", "API Engineer"
+    ],
+    "frontend": [
+        "Frontend Developer", "React Developer", "UI Engineer"
+    ],
+    "fullstack": [
+        "Full Stack Developer", "MERN Developer", "Web Developer"
+    ],
+    "ml": [
+        "Machine Learning Engineer", "Data Scientist", "AI Engineer"
+    ]
+}
 
-# 🔥 SMART JOB MATCHING + RANKING
+
+# 🔥 AUTO GENERATE LARGE DATASET
+JOBS = []
+
+def generate_jobs():
+    for city in CITIES:
+        for category, titles in JOB_TEMPLATES.items():
+            for _ in range(8):  # 👉 8 per category per city = 30+ jobs/city
+                JOBS.append({
+                    "title": random.choice(titles),
+                    "company": random.choice(COMPANIES),
+                    "location": city,
+                    "category": category,
+                    "url": f"https://www.linkedin.com/jobs/search/?keywords={category}&location={city}"
+                })
+
+generate_jobs()
+
+
+# ================= ROLE MAP =================
+
+ROLE_CATEGORY = {
+    "Full Stack Developer": "fullstack",
+    "Frontend Developer": "frontend",
+    "Backend Developer": "backend",
+    "Machine Learning Engineer": "ml",
+    "Data Scientist": "ml"
+}
+
+
+# ================= FINAL SMART MATCH =================
+
 def get_jobs(role, city):
-    role = role.lower()
-    city = city.lower()
+    role = role.strip()
+    city = city.strip().lower()
 
-    scored_jobs = []
+    category = ROLE_CATEGORY.get(role)
 
-    for job in JOBS:
-        job_role = job["title"].lower()
-        job_city = job["location"].lower()
+    if not category:
+        return []
 
-        if job_city != city:
-            continue
+    # 🔥 STRICT FILTER FIRST
+    exact = [
+        job for job in JOBS
+        if job["category"] == category and job["location"].lower() == city
+    ]
 
-        score = 0
+    # 🔥 RELAX FILTER (same category anywhere)
+    relaxed = [
+        job for job in JOBS
+        if job["category"] == category
+    ]
 
-        # 🔥 EXACT MATCH → highest priority
-        if role == job_role:
-            score += 3
+    # 🔥 FINAL FALLBACK (same city any role)
+    city_only = [
+        job for job in JOBS
+        if job["location"].lower() == city
+    ]
 
-        # 🔥 PARTIAL MATCH
-        elif role in job_role or job_role in role:
-            score += 2
+    results = exact if exact else relaxed if relaxed else city_only
 
-        # 🔥 KEYWORD MATCH
-        elif any(word in job_role for word in role.split()):
-            score += 1
-
-        if score > 0:
-            scored_jobs.append((score, job))
-
-    # 🔥 SORT BY BEST MATCH
-    scored_jobs.sort(reverse=True, key=lambda x: x[0])
-
-    # return only jobs (remove scores)
-    return [job for _, job in scored_jobs]
+    return results[:12]  # 🔥 always show 10+ jobs
