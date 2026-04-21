@@ -7,7 +7,9 @@ SECRET_KEY = 'django-insecure-(cly8z-_+jb5me7=wrcpp95hfaz!w^n5lacv5^kloypa3y$&!i
 DEBUG = True  # change to False later
 
 ALLOWED_HOSTS = [
-    "skillgap-production-6ab4.up.railway.app"
+    "skillgap-production-6ab4.up.railway.app",
+    "127.0.0.1",
+    "localhost"
 ]
 
 CSRF_TRUSTED_ORIGINS = [
