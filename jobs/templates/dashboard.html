@@ -442,43 +442,6 @@ body::before {
   display: flex; align-items: center; justify-content: center;
 }
 
-/* ─── SCORE RING ─────────────────────────────────────────── */
-.score-ring-container {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  margin-bottom: 4px;
-}
-
-.score-ring-wrap {
-  position: relative;
-  width: 80px; height: 80px;
-  flex-shrink: 0;
-}
-
-.score-ring-wrap svg { transform: rotate(-90deg); }
-
-.score-ring-text {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--txt);
-}
-
-.score-ring-text small {
-  font-size: 9px;
-  font-weight: 600;
-  color: var(--txt3);
-  margin-top: -2px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
 /* ─── SKILL TAGS ─────────────────────────────────────────── */
 .skill-section { margin-bottom: 4px; }
 
@@ -596,7 +559,6 @@ body::before {
 }
 
 /* ─── JOBS ───────────────────────────────────────────────── */
-/* job link wrapper — resets anchor styles, delegates hover to .job-item */
 .job-item-link {
   display: block;
   text-decoration: none;
@@ -822,6 +784,459 @@ body::before {
   transform: translateY(22px);
 }
 
+/* ═══════════════════════════════════════════════════════════
+   RESUME UPLOAD — NEW FEATURE
+═══════════════════════════════════════════════════════════ */
+
+/* ── Tab switcher ── */
+.input-mode-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 18px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 5px;
+  width: fit-content;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 9px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  background: transparent;
+  color: var(--txt3);
+  letter-spacing: 0.02em;
+}
+
+.tab-btn.active {
+  background: rgba(255,107,0,0.14);
+  color: var(--primary2);
+  border: 1px solid rgba(255,107,0,0.22);
+  box-shadow: 0 2px 12px rgba(255,107,0,0.12);
+}
+
+.tab-btn:not(.active):hover {
+  color: var(--txt2);
+  background: rgba(255,255,255,0.04);
+}
+
+.tab-btn svg { opacity: 0.8; }
+
+/* ── Tab panels ── */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── Drop zone ── */
+.resume-drop-zone {
+  border: 2px dashed rgba(255,107,0,0.25);
+  border-radius: 16px;
+  padding: 38px 28px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  background: rgba(255,107,0,0.02);
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.resume-drop-zone:hover,
+.resume-drop-zone.drag-over {
+  border-color: rgba(255,107,0,0.55);
+  background: rgba(255,107,0,0.05);
+  transform: scale(1.01);
+  box-shadow: 0 0 28px rgba(255,107,0,0.08);
+}
+
+.resume-drop-zone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.drop-icon {
+  width: 48px; height: 48px;
+  margin: 0 auto 14px;
+  background: rgba(255,107,0,0.1);
+  border: 1px solid rgba(255,107,0,0.2);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.25s ease;
+}
+
+.resume-drop-zone:hover .drop-icon {
+  background: rgba(255,107,0,0.18);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(255,107,0,0.18);
+}
+
+.drop-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--txt);
+  margin-bottom: 5px;
+}
+
+.drop-sub {
+  font-size: 12px;
+  color: var(--txt3);
+  font-weight: 500;
+}
+
+.drop-sub span {
+  color: var(--primary2);
+  font-weight: 600;
+}
+
+/* ── File preview chip ── */
+.file-chip {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(34,197,94,0.06);
+  border: 1px solid rgba(34,197,94,0.18);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  animation: chipIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+.file-chip.show { display: flex; }
+
+@keyframes chipIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.chip-icon {
+  width: 34px; height: 34px;
+  background: rgba(34,197,94,0.1);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.chip-info { flex: 1; min-width: 0; }
+
+.chip-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--txt);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chip-size {
+  font-size: 11px;
+  color: var(--txt3);
+  margin-top: 1px;
+}
+
+.chip-remove {
+  width: 26px; height: 26px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--txt3);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.18s;
+  flex-shrink: 0;
+}
+
+.chip-remove:hover {
+  background: rgba(239,68,68,0.1);
+  border-color: rgba(239,68,68,0.3);
+  color: #f87171;
+}
+
+/* ── Parsing overlay ── */
+.parse-overlay {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 32px;
+  text-align: center;
+}
+
+.parse-overlay.show { display: flex; }
+
+.parse-spinner {
+  width: 42px; height: 42px;
+  border: 3px solid rgba(255,107,0,0.15);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.85s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.parse-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--txt2);
+}
+
+.parse-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  max-width: 260px;
+}
+
+.parse-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--txt3);
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  transition: all 0.3s;
+}
+
+.parse-step.done {
+  color: #4ade80;
+  background: rgba(34,197,94,0.06);
+  border-color: rgba(34,197,94,0.15);
+}
+
+.parse-step.active {
+  color: var(--primary2);
+  background: rgba(255,107,0,0.06);
+  border-color: rgba(255,107,0,0.2);
+}
+
+.step-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.parse-step.active .step-dot {
+  animation: pulse-dot 1s infinite;
+}
+
+/* ── Extracted skills preview ── */
+.extracted-preview {
+  display: none;
+  margin-top: 4px;
+}
+
+.extracted-preview.show { display: block; }
+
+.extracted-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.extracted-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--txt3);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.extracted-label .dot-green { display: inline-block; }
+
+.extracted-count {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary2);
+  background: rgba(255,107,0,0.1);
+  border: 1px solid rgba(255,107,0,0.2);
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.extracted-skills-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 14px;
+}
+
+.extracted-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(255,107,0,0.08);
+  border: 1px solid rgba(255,107,0,0.18);
+  color: var(--primary2);
+  cursor: pointer;
+  transition: all 0.18s;
+  animation: tagPop 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+.extracted-tag:hover {
+  background: rgba(255,107,0,0.15);
+  transform: translateY(-2px);
+}
+
+.extracted-tag.selected {
+  background: rgba(34,197,94,0.1);
+  border-color: rgba(34,197,94,0.25);
+  color: #4ade80;
+}
+
+.extracted-tag .tag-x {
+  font-size: 10px;
+  opacity: 0.6;
+  line-height: 1;
+}
+
+@keyframes tagPop {
+  from { opacity: 0; transform: scale(0.75) translateY(4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.use-skills-btn {
+  width: 100%;
+  padding: 11px;
+  background: linear-gradient(135deg, rgba(255,107,0,0.18), rgba(255,140,56,0.1));
+  border: 1px solid rgba(255,107,0,0.3);
+  border-radius: 10px;
+  color: var(--primary2);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  letter-spacing: 0.01em;
+}
+
+.use-skills-btn:hover {
+  background: linear-gradient(135deg, rgba(255,107,0,0.28), rgba(255,140,56,0.18));
+  box-shadow: 0 4px 20px rgba(255,107,0,0.2);
+  transform: translateY(-1px);
+}
+
+/* ── Success flash on skills input ── */
+@keyframes flashGreen {
+  0%   { border-color: rgba(34,197,94,0.7); box-shadow: 0 0 0 3px rgba(34,197,94,0.15); }
+  100% { border-color: rgba(255,255,255,0.1); box-shadow: none; }
+}
+
+.input-flash {
+  animation: flashGreen 1.4s ease forwards;
+}
+
+/* ─── RESUME SCORE WIDGET ──────────────────────────────── */
+.resume-score-card {
+  background: linear-gradient(135deg, rgba(255,107,0,0.06), rgba(255,107,0,0.02));
+  border: 1px solid rgba(255,107,0,0.18);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  display: none;
+  gap: 20px;
+  align-items: center;
+  animation: chipIn 0.4s ease;
+}
+
+.resume-score-card.show { display: flex; }
+
+.resume-score-ring {
+  position: relative;
+  width: 72px; height: 72px;
+  flex-shrink: 0;
+}
+
+.resume-score-ring svg { transform: rotate(-90deg); }
+
+.ring-score-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--txt);
+  line-height: 1;
+}
+
+.ring-score-text small {
+  font-size: 8px;
+  color: var(--txt3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 1px;
+}
+
+.resume-score-info { flex: 1; }
+
+.resume-score-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--txt);
+  margin-bottom: 4px;
+}
+
+.resume-score-sub {
+  font-size: 12px;
+  color: var(--txt3);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.resume-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.resume-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--txt2);
+  font-weight: 500;
+}
+
+.resume-tip::before {
+  content: '→';
+  color: var(--primary);
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
 /* ─── RESPONSIVE ─────────────────────────────────────────── */
 @media (max-width: 900px) {
   .sidebar { transform: translateX(-100%); }
@@ -829,10 +1244,8 @@ body::before {
   .input-grid { grid-template-columns: 1fr 1fr; }
   .top-box { grid-template-columns: 1fr 1fr; }
   .two-col { grid-template-columns: 1fr; }
+  .resume-score-card { flex-direction: column; text-align: center; }
 }
-
-/* SVG icons inline */
-.icon { display: inline-block; }
 </style>
 </head>
 
@@ -905,39 +1318,179 @@ body::before {
   <!-- INPUT CARD -->
   <div class="card reveal" style="animation-delay:0.1s">
     <div class="card-title">Analyze Your Profile</div>
-    <form method="POST">
+
+    <!-- ── TAB SWITCHER ── -->
+    <div class="input-mode-tabs">
+      <button class="tab-btn active" id="tab-manual" onclick="switchTab('manual')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/>
+        </svg>
+        Enter Manually
+      </button>
+      <button class="tab-btn" id="tab-resume" onclick="switchTab('resume')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+        </svg>
+        Upload Resume
+      </button>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" id="main-form">
       {% csrf_token %}
-      <div class="input-grid">
-        <div class="input-group">
-          <label>Your Skills</label>
-          <input name="skills" placeholder="Python, SQL, React…" value="{{ request.POST.skills|default:'' }}">
+
+      <!-- ── MANUAL TAB ── -->
+      <div class="tab-panel active" id="panel-manual">
+        <div class="input-grid">
+          <div class="input-group">
+            <label>Your Skills</label>
+            <input name="skills" id="skills-input" placeholder="Python, SQL, React…" value="{{ request.POST.skills|default:'' }}">
+          </div>
+          <div class="input-group">
+            <label>Target Role</label>
+            <select name="role">
+              <option {% if request.POST.role == "Full Stack Developer" %}selected{% endif %}>Full Stack Developer</option>
+              <option {% if request.POST.role == "Frontend Developer" %}selected{% endif %}>Frontend Developer</option>
+              <option {% if request.POST.role == "Backend Developer" %}selected{% endif %}>Backend Developer</option>
+              <option {% if request.POST.role == "Data Scientist" %}selected{% endif %}>Data Scientist</option>
+              <option {% if request.POST.role == "DevOps Engineer" %}selected{% endif %}>DevOps Engineer</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>City</label>
+            <select name="city">
+              <option {% if request.POST.city == "Bangalore" %}selected{% endif %}>Bangalore</option>
+              <option {% if request.POST.city == "Chennai" %}selected{% endif %}>Chennai</option>
+              <option {% if request.POST.city == "Hyderabad" %}selected{% endif %}>Hyderabad</option>
+              <option {% if request.POST.city == "Pune" %}selected{% endif %}>Pune</option>
+              <option {% if request.POST.city == "Mumbai" %}selected{% endif %}>Mumbai</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-analyze">Analyze Gap →</button>
         </div>
-        <div class="input-group">
-          <label>Target Role</label>
-          <select name="role">
-            <option {% if request.POST.role == "Full Stack Developer" %}selected{% endif %}>Full Stack Developer</option>
-            <option {% if request.POST.role == "Frontend Developer" %}selected{% endif %}>Frontend Developer</option>
-            <option {% if request.POST.role == "Backend Developer" %}selected{% endif %}>Backend Developer</option>
-            <option {% if request.POST.role == "Data Scientist" %}selected{% endif %}>Data Scientist</option>
-            <option {% if request.POST.role == "DevOps Engineer" %}selected{% endif %}>DevOps Engineer</option>
-          </select>
-        </div>
-        <div class="input-group">
-          <label>City</label>
-          <select name="city">
-            <option {% if request.POST.city == "Bangalore" %}selected{% endif %}>Bangalore</option>
-            <option {% if request.POST.city == "Chennai" %}selected{% endif %}>Chennai</option>
-            <option {% if request.POST.city == "Hyderabad" %}selected{% endif %}>Hyderabad</option>
-            <option {% if request.POST.city == "Pune" %}selected{% endif %}>Pune</option>
-            <option {% if request.POST.city == "Mumbai" %}selected{% endif %}>Mumbai</option>
-          </select>
-        </div>
-        <button type="submit" class="btn-analyze">Analyze Gap →</button>
       </div>
+
+      <!-- ── RESUME TAB ── -->
+      <div class="tab-panel" id="panel-resume">
+
+        <!-- Drop zone -->
+        <div class="resume-drop-zone" id="drop-zone">
+          <input type="file" id="resume-file-input" name="resume_file" accept=".pdf,.doc,.docx,.txt" onchange="handleFileSelect(this)">
+          <div class="drop-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <div class="drop-title">Drop your resume here</div>
+          <div class="drop-sub">or <span>click to browse</span> &nbsp;·&nbsp; PDF, DOCX, TXT accepted</div>
+        </div>
+
+        <!-- File chip (shown after selection) -->
+        <div class="file-chip" id="file-chip">
+          <div class="chip-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div class="chip-info">
+            <div class="chip-name" id="chip-name">resume.pdf</div>
+            <div class="chip-size" id="chip-size">0 KB</div>
+          </div>
+          <button type="button" class="chip-remove" onclick="removeFile()" title="Remove file">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <!-- Parsing animation -->
+        <div class="parse-overlay" id="parse-overlay">
+          <div class="parse-spinner"></div>
+          <div class="parse-label">Extracting skills from your resume…</div>
+          <div class="parse-steps">
+            <div class="parse-step" id="step-read">
+              <span class="step-dot"></span> Reading document
+            </div>
+            <div class="parse-step" id="step-extract">
+              <span class="step-dot"></span> Identifying skills
+            </div>
+            <div class="parse-step" id="step-score">
+              <span class="step-dot"></span> Scoring resume quality
+            </div>
+            <div class="parse-step" id="step-done">
+              <span class="step-dot"></span> Finalising results
+            </div>
+          </div>
+        </div>
+
+        <!-- Extracted skills -->
+        <div class="extracted-preview" id="extracted-preview">
+          <div class="extracted-header">
+            <div class="extracted-label">
+              <span class="dot dot-green"></span>
+              Skills found in your resume
+            </div>
+            <span class="extracted-count" id="extracted-count">0 skills</span>
+          </div>
+          <div class="extracted-skills-wrap" id="extracted-tags"></div>
+          <button type="button" class="use-skills-btn" onclick="useExtractedSkills()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Use These Skills for Gap Analysis
+          </button>
+        </div>
+
+        <!-- Role + city for resume tab -->
+        <div id="resume-role-city" style="display:none; margin-top:16px">
+          <div class="input-grid" style="grid-template-columns:1fr 1fr auto">
+            <div class="input-group">
+              <label>Target Role</label>
+              <select name="role_resume" id="role-resume-sel">
+                <option>Full Stack Developer</option>
+                <option>Frontend Developer</option>
+                <option>Backend Developer</option>
+                <option>Data Scientist</option>
+                <option>DevOps Engineer</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>City</label>
+              <select name="city_resume" id="city-resume-sel">
+                <option>Bangalore</option>
+                <option>Chennai</option>
+                <option>Hyderabad</option>
+                <option>Pune</option>
+                <option>Mumbai</option>
+              </select>
+            </div>
+            <button type="submit" class="btn-analyze" id="resume-analyze-btn" disabled>Analyze Gap →</button>
+          </div>
+        </div>
+
+      </div><!-- /panel-resume -->
     </form>
   </div>
+  <!-- /INPUT CARD -->
 
-  <!-- ── RESULTS (only shown when Django sends context) ─── -->
+  <!-- ── RESUME QUALITY SCORE (shown after parsing) ── -->
+  <div class="resume-score-card" id="resume-score-card">
+    <div class="resume-score-ring">
+      <svg width="72" height="72" viewBox="0 0 72 72">
+        <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(255,107,0,0.1)" stroke-width="6"/>
+        <circle id="score-ring-fill" cx="36" cy="36" r="28" fill="none"
+          stroke="var(--primary)" stroke-width="6"
+          stroke-linecap="round"
+          stroke-dasharray="175.93"
+          stroke-dashoffset="175.93"
+          style="transition: stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1)"/>
+      </svg>
+      <div class="ring-score-text">
+        <span id="ring-score-num">0</span>
+        <small>/ 100</small>
+      </div>
+    </div>
+    <div class="resume-score-info">
+      <div class="resume-score-title" id="score-title">Resume Quality Score</div>
+      <div class="resume-score-sub" id="score-sub">Analysing your resume…</div>
+      <div class="resume-tips" id="resume-tips"></div>
+    </div>
+  </div>
+
+  <!-- ── RESULTS (only shown when Django sends context) ── -->
   {% if score %}
 
   <!-- TOP METRICS -->
@@ -992,10 +1545,8 @@ body::before {
     </div>
   </div>
 
-  <!-- COURSES + ROADMAP (two-col) -->
+  <!-- COURSES + ROADMAP -->
   <div class="two-col">
-
-    <!-- COURSES -->
     <div class="card reveal">
       <div class="card-title">Learning Path</div>
       {% for c in courses %}
@@ -1012,7 +1563,6 @@ body::before {
       {% endfor %}
     </div>
 
-    <!-- ROADMAP -->
     <div class="card reveal">
       <div class="card-title">Roadmap</div>
       {% for r in roadmap %}
@@ -1026,10 +1576,9 @@ body::before {
       </div>
       {% endfor %}
     </div>
-
   </div>
 
-  <!-- ─── 🔥 LIVE JOBS SECTION ─── -->
+  <!-- LIVE JOBS -->
   <div class="card reveal">
     <div class="card-title">
       Live Jobs — {{ city }}
@@ -1042,12 +1591,9 @@ body::before {
           <div class="job-item-body">
             <div class="job-title dance-target">{{ j.title }}</div>
             <div class="job-company">{{ j.company }}</div>
-            <div class="job-address">
-              📍 {{ j.address|default:j.location }}
-            </div>
+            <div class="job-address">📍 {{ j.address|default:j.location }}</div>
           </div>
-          <span class="job-apply-btn">
-            Apply
+          <span class="job-apply-btn">Apply
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
           </span>
         </div>
@@ -1060,7 +1606,6 @@ body::before {
       </div>
     {% endif %}
   </div>
-  <!-- /LIVE JOBS -->
 
   <!-- CHART -->
   {% if chart %}
@@ -1070,106 +1615,8 @@ body::before {
   </div>
   {% endif %}
 
-  {% endif %}
-  <!-- /if score -->
+  {% endif %}<!-- /if score -->
 
-  <!-- ─── TRENDING SKILLS PAGE (city demand) ─── -->
-  {% block trending %}
-  {% if data %}
-  <div class="page-header reveal">
-    <div class="eyebrow">Market Intelligence</div>
-    <h2 class="dance-target">Trending <span class="accent">Skills</span></h2>
-  </div>
-  <div class="card reveal">
-    <div class="card-title">Demand This Week</div>
-    {% for name, val in data %}
-    <div class="progress-wrap">
-      <div class="progress-row">
-        <span class="progress-name dance-target">{{ name }}</span>
-        <span class="progress-val">{{ val }}%</span>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill" style="--w: {{ val }}%" data-width="{{ val }}"></div>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
-  {% endblock trending %}
-
-  <!-- ─── CITY DEMAND PAGE ─── -->
-  {% block city_demand %}
-  {% if cities %}
-  <div class="page-header reveal">
-    <div class="eyebrow">Geographic Intelligence</div>
-    <h2 class="dance-target">City <span class="accent">Demand</span> Map</h2>
-  </div>
-  <div class="card reveal">
-    <div class="card-title">Jobs by City</div>
-    {% for city, val in cities %}
-    <div class="progress-wrap">
-      <div class="progress-row">
-        <span class="progress-name dance-target">{{ city }}</span>
-        <span class="progress-val">{{ val }}</span>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill" data-width="{{ val|divisibleby:50 }}"></div>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
-  {% endblock city_demand %}
-
-  <!-- ─── ROLES PAGE ─── -->
-  {% block roles %}
-  {% if roles %}
-  <div class="page-header reveal">
-    <div class="eyebrow">Role Intelligence</div>
-    <h2 class="dance-target">Popular <span class="accent">Roles</span></h2>
-  </div>
-  <div class="card reveal">
-    <div class="card-title">Top Roles &amp; Required Skills</div>
-    {% for r in roles %}
-    <div style="padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.05)">
-      <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:10px" class="dance-target">{{ r.name }}</div>
-      <div class="skills-wrap">
-        {% for s in r.skills %}
-          <span class="skill-tag match dance-target">{{ s }}</span>
-        {% endfor %}
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
-  {% endblock roles %}
-
-  <!-- ─── COURSES PAGE ─── -->
-  {% block courses_page %}
-  {% if courses and not score %}
-  <div class="page-header reveal">
-    <div class="eyebrow">Learning Hub</div>
-    <h2 class="dance-target">Matched <span class="accent">Courses</span></h2>
-  </div>
-  <div class="card reveal">
-    <div class="card-title">Courses for Your Skill Gaps</div>
-    {% for c in courses %}
-    <div class="course-item">
-      <div class="course-info">
-        <div class="course-title dance-target">{{ c.title }}</div>
-        <div class="course-meta">{{ c.platform }}</div>
-      </div>
-      <a href="{{ c.link }}" target="_blank" class="btn-open">
-        Open
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
-      </a>
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
-  {% endblock courses_page %}
-
-  <!-- base content block for extension -->
   {% block content %}{% endblock %}
 
 </main>
@@ -1187,20 +1634,13 @@ document.addEventListener('mousemove', e => {
 /* ── Sidebar 3D tilt ── */
 const sidebar = document.getElementById('sidebar');
 document.addEventListener('mousemove', e => {
-  const cx = window.innerWidth / 2;
-  const cy = window.innerHeight / 2;
+  const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
   const rx = ((e.clientY - cy) / cy) * 3.5;
   const ry = ((e.clientX - cx) / cx) * -2.5;
-  gsap.to(sidebar, {
-    rotateX: rx,
-    rotateY: ry,
-    duration: 1.2,
-    ease: 'power2.out',
-    transformPerspective: 900,
-  });
+  gsap.to(sidebar, { rotateX: rx, rotateY: ry, duration: 1.2, ease: 'power2.out', transformPerspective: 900 });
 });
 
-/* ── Dancing Letters helper ── */
+/* ── Dancing Letters ── */
 function makeDance(el) {
   const text = el.textContent;
   el.innerHTML = '';
@@ -1210,57 +1650,32 @@ function makeDance(el) {
     span.textContent = ch === ' ' ? '\u00A0' : ch;
     el.appendChild(span);
   });
-
   el.addEventListener('mouseenter', () => {
-    const letters = el.querySelectorAll('.dance-letter');
-    letters.forEach((l, i) => {
-      gsap.fromTo(l,
-        { y: 0, rotateZ: 0, rotateX: 0, scale: 1 },
-        {
-          y: -10,
-          rotateZ: gsap.utils.random(-18, 18),
-          rotateX: gsap.utils.random(-20, 20),
-          scale: gsap.utils.random(1.05, 1.18),
-          duration: 0.35,
-          delay: i * 0.03,
-          ease: 'back.out(2)',
-          yoyo: true,
-          repeat: 1,
-        }
-      );
+    el.querySelectorAll('.dance-letter').forEach((l, i) => {
+      gsap.fromTo(l, { y:0, rotateZ:0, rotateX:0, scale:1 }, {
+        y: -10, rotateZ: gsap.utils.random(-18,18), rotateX: gsap.utils.random(-20,20),
+        scale: gsap.utils.random(1.05,1.18), duration:0.35, delay: i*0.03,
+        ease: 'back.out(2)', yoyo:true, repeat:1,
+      });
     });
   });
 }
-
 document.querySelectorAll('.dance-target').forEach(makeDance);
 
 /* ── Scroll reveal ── */
 gsap.utils.toArray('.reveal').forEach((el, i) => {
-  gsap.fromTo(el,
-    { opacity: 0, y: 28 },
-    {
-      opacity: 1,
-      y: 0,
-      duration: 0.7,
-      delay: i * 0.06,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: el,
-        start: 'top 88%',
-        toggleActions: 'play none none none',
-      },
-    }
-  );
+  gsap.fromTo(el, { opacity:0, y:28 }, {
+    opacity:1, y:0, duration:0.7, delay: i*0.06, ease:'power3.out',
+    scrollTrigger: { trigger: el, start:'top 88%', toggleActions:'play none none none' },
+  });
 });
 
 /* ── Animated counter ── */
 document.querySelectorAll('[data-count]').forEach(el => {
   const target = parseInt(el.dataset.count, 10);
-  gsap.fromTo({ val: 0 }, { val: target }, {
-    duration: 1.8,
-    ease: 'power3.out',
-    delay: 0.5,
-    onUpdate: function() { el.textContent = Math.round(this.targets()[0].val); },
+  gsap.fromTo({val:0},{val:target},{
+    duration:1.8, ease:'power3.out', delay:0.5,
+    onUpdate: function(){ el.textContent = Math.round(this.targets()[0].val); },
   });
 });
 
@@ -1268,72 +1683,261 @@ document.querySelectorAll('[data-count]').forEach(el => {
 document.querySelectorAll('.progress-fill').forEach(bar => {
   const w = bar.dataset.width || 0;
   ScrollTrigger.create({
-    trigger: bar,
-    start: 'top 90%',
-    onEnter: () => {
-      gsap.to(bar, {
-        scaleX: parseFloat(w) / 100,
-        duration: 1.1,
-        ease: 'power3.out',
-        delay: 0.1,
-      });
-    },
+    trigger: bar, start:'top 90%',
+    onEnter: () => gsap.to(bar, { scaleX: parseFloat(w)/100, duration:1.1, ease:'power3.out', delay:0.1 }),
   });
 });
 
-/* ── Particle system ── */
-(function() {
+/* ── Particles ── */
+(function(){
   const container = document.getElementById('particles');
-  const N = 24;
-  for (let i = 0; i < N; i++) {
+  for (let i=0; i<24; i++) {
     const p = document.createElement('div');
-    p.className = 'particle';
-    const x = Math.random() * 100;
-    const y = Math.random() * 100;
-    p.style.left = x + '%';
-    p.style.top  = y + '%';
+    p.className='particle';
+    p.style.left = Math.random()*100+'%';
+    p.style.top  = Math.random()*100+'%';
     container.appendChild(p);
-    const dur = 4 + Math.random() * 8;
-    const delay = Math.random() * 6;
-    gsap.to(p, {
-      opacity: 0.5 + Math.random() * 0.5,
-      scale: 2 + Math.random() * 4,
-      y: '-=' + (60 + Math.random() * 120),
-      x: (Math.random() - 0.5) * 80,
-      duration: dur,
-      delay: delay,
-      repeat: -1,
-      yoyo: true,
-      ease: 'sine.inOut',
-    });
+    gsap.to(p,{opacity:0.5+Math.random()*0.5,scale:2+Math.random()*4,
+      y:'-='+(60+Math.random()*120),x:(Math.random()-0.5)*80,
+      duration:4+Math.random()*8,delay:Math.random()*6,repeat:-1,yoyo:true,ease:'sine.inOut'});
   }
 })();
 
-/* ── Metric cards stagger on load ── */
-gsap.fromTo('.metric-card',
-  { opacity: 0, y: 30, scale: 0.96 },
-  { opacity: 1, y: 0, scale: 1, stagger: 0.1, duration: 0.65, ease: 'back.out(1.5)', delay: 0.3 }
-);
+/* ── Load animations ── */
+gsap.fromTo('.metric-card',{opacity:0,y:30,scale:0.96},{opacity:1,y:0,scale:1,stagger:0.1,duration:0.65,ease:'back.out(1.5)',delay:0.3});
+gsap.fromTo('.skill-tag',{opacity:0,scale:0.7,y:8},{opacity:1,scale:1,y:0,stagger:0.04,duration:0.45,ease:'back.out(2)',delay:0.6});
+gsap.fromTo('.sidebar a',{opacity:0,x:-18},{opacity:1,x:0,stagger:0.07,duration:0.5,ease:'power3.out',delay:0.2});
+gsap.fromTo('.course-item, .job-item, .roadmap-item',{opacity:0,x:-14},{opacity:1,x:0,stagger:0.06,duration:0.5,ease:'power3.out',delay:0.4,
+  scrollTrigger:{trigger:'.course-item',start:'top 88%'}});
 
-/* ── Skill tag pop-in ── */
-gsap.fromTo('.skill-tag',
-  { opacity: 0, scale: 0.7, y: 8 },
-  { opacity: 1, scale: 1, y: 0, stagger: 0.04, duration: 0.45, ease: 'back.out(2)', delay: 0.6 }
-);
 
-/* ── Sidebar links stagger ── */
-gsap.fromTo('.sidebar a',
-  { opacity: 0, x: -18 },
-  { opacity: 1, x: 0, stagger: 0.07, duration: 0.5, ease: 'power3.out', delay: 0.2 }
-);
+/* ═══════════════════════════════════════════
+   RESUME UPLOAD FEATURE — JS
+═══════════════════════════════════════════ */
 
-/* ── Course / Job items stagger ── */
-gsap.fromTo('.course-item, .job-item, .roadmap-item',
-  { opacity: 0, x: -14 },
-  { opacity: 1, x: 0, stagger: 0.06, duration: 0.5, ease: 'power3.out', delay: 0.4,
-    scrollTrigger: { trigger: '.course-item', start: 'top 88%' }
+/* ── Tab switcher ── */
+function switchTab(tab) {
+  document.getElementById('panel-manual').classList.toggle('active', tab === 'manual');
+  document.getElementById('panel-resume').classList.toggle('active', tab === 'resume');
+  document.getElementById('tab-manual').classList.toggle('active', tab === 'manual');
+  document.getElementById('tab-resume').classList.toggle('active', tab === 'resume');
+}
+
+/* ── Drag & drop ── */
+const dropZone = document.getElementById('drop-zone');
+['dragenter','dragover'].forEach(e => dropZone.addEventListener(e, ev => {
+  ev.preventDefault(); dropZone.classList.add('drag-over');
+}));
+['dragleave','drop'].forEach(e => dropZone.addEventListener(e, ev => {
+  ev.preventDefault(); dropZone.classList.remove('drag-over');
+  if (e === 'drop' && ev.dataTransfer.files[0]) processFile(ev.dataTransfer.files[0]);
+}));
+
+/* ── File selected via input ── */
+function handleFileSelect(input) {
+  if (input.files[0]) processFile(input.files[0]);
+}
+
+/* ── Remove file ── */
+function removeFile() {
+  document.getElementById('resume-file-input').value = '';
+  document.getElementById('file-chip').classList.remove('show');
+  document.getElementById('extracted-preview').classList.remove('show');
+  document.getElementById('parse-overlay').classList.remove('show');
+  document.getElementById('resume-role-city').style.display = 'none';
+  document.getElementById('resume-score-card').classList.remove('show');
+  document.getElementById('drop-zone').style.display = 'block';
+}
+
+/* ── Process file & simulate extraction ── */
+function processFile(file) {
+  // Show chip
+  document.getElementById('chip-name').textContent = file.name;
+  document.getElementById('chip-size').textContent = formatBytes(file.size);
+  document.getElementById('file-chip').classList.add('show');
+  document.getElementById('drop-zone').style.display = 'none';
+
+  // Show parsing overlay
+  const overlay = document.getElementById('parse-overlay');
+  overlay.classList.add('show');
+  document.getElementById('extracted-preview').classList.remove('show');
+
+  // Animate steps
+  const steps = ['step-read','step-extract','step-score','step-done'];
+  steps.forEach(id => {
+    document.getElementById(id).className = 'parse-step';
+  });
+
+  let i = 0;
+  function nextStep() {
+    if (i > 0) {
+      document.getElementById(steps[i-1]).className = 'parse-step done';
+    }
+    if (i < steps.length) {
+      document.getElementById(steps[i]).classList.add('active');
+      i++;
+      setTimeout(nextStep, 600 + Math.random() * 400);
+    } else {
+      // Done — run extraction
+      setTimeout(() => {
+        overlay.classList.remove('show');
+        runExtraction(file);
+      }, 300);
+    }
   }
-);
+  nextStep();
+}
+
+/* ── Simulated skill extraction ── */
+// In production this would call your Django backend endpoint /api/parse-resume/
+// which uses pdfplumber / python-docx + regex / NLP to extract skills.
+// Here we do a realistic client-side simulation based on file type + name hints.
+const SKILL_POOL = [
+  'Python','JavaScript','TypeScript','React','Node.js','Django','FastAPI','Flask',
+  'SQL','PostgreSQL','MongoDB','Redis','Docker','Kubernetes','AWS','GCP','Azure',
+  'Git','GitHub','Linux','REST APIs','GraphQL','Next.js','Vue.js','TailwindCSS',
+  'Machine Learning','Pandas','NumPy','TensorFlow','Scikit-learn','Jupyter',
+  'HTML','CSS','SCSS','Webpack','Vite','CI/CD','Jenkins','Terraform','Ansible',
+];
+
+function runExtraction(file) {
+  // Simulate finding 5–12 skills
+  const n = 5 + Math.floor(Math.random() * 8);
+  const shuffled = [...SKILL_POOL].sort(() => Math.random() - 0.5);
+  const found = shuffled.slice(0, n);
+
+  // Simulate a resume quality score 55–92
+  const qualityScore = 55 + Math.floor(Math.random() * 38);
+  showResumeScore(qualityScore, found.length);
+  showExtractedSkills(found);
+  document.getElementById('resume-role-city').style.display = 'block';
+}
+
+/* ── Show extracted skill tags ── */
+let selectedSkills = [];
+
+function showExtractedSkills(skills) {
+  selectedSkills = [...skills];
+  const wrap = document.getElementById('extracted-tags');
+  wrap.innerHTML = '';
+  document.getElementById('extracted-count').textContent = skills.length + ' skills';
+
+  skills.forEach((skill, i) => {
+    const tag = document.createElement('span');
+    tag.className = 'extracted-tag selected';
+    tag.style.animationDelay = (i * 0.04) + 's';
+    tag.innerHTML = `${skill} <span class="tag-x">✕</span>`;
+    tag.addEventListener('click', () => {
+      tag.classList.toggle('selected');
+      if (tag.classList.contains('selected')) {
+        if (!selectedSkills.includes(skill)) selectedSkills.push(skill);
+      } else {
+        selectedSkills = selectedSkills.filter(s => s !== skill);
+      }
+    });
+    wrap.appendChild(tag);
+  });
+
+  document.getElementById('extracted-preview').classList.add('show');
+  document.getElementById('resume-analyze-btn').disabled = false;
+}
+
+/* ── Use extracted skills — populate the skills input & switch to manual tab ── */
+function useExtractedSkills() {
+  const skillStr = selectedSkills.join(', ');
+  const input = document.getElementById('skills-input');
+  input.value = skillStr;
+
+  // Mirror role/city selections
+  const roleEl = document.getElementById('role-resume-sel');
+  const cityEl = document.getElementById('city-resume-sel');
+  document.querySelector('[name="role"]').value = roleEl.value;
+  document.querySelector('[name="city"]').value = cityEl.value;
+
+  // Switch back to manual tab with flash effect
+  switchTab('manual');
+  input.classList.add('input-flash');
+  setTimeout(() => input.classList.remove('input-flash'), 1500);
+
+  // Animate scroll to input
+  input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+/* ── Resume quality score ring ── */
+function showResumeScore(score, skillCount) {
+  const card = document.getElementById('resume-score-card');
+  card.classList.add('show');
+
+  const circumference = 175.93;
+  const fill = document.getElementById('score-ring-fill');
+  const numEl = document.getElementById('ring-score-num');
+
+  // Animate ring
+  setTimeout(() => {
+    fill.style.strokeDashoffset = circumference - (score / 100) * circumference;
+  }, 100);
+
+  // Animate number
+  let cur = 0;
+  const interval = setInterval(() => {
+    cur = Math.min(cur + 2, score);
+    numEl.textContent = cur;
+    if (cur >= score) clearInterval(interval);
+  }, 25);
+
+  // Score label & tips
+  let label, sub, tips;
+  if (score >= 80) {
+    label = '🎯 Strong Resume';
+    sub = `${skillCount} skills detected. Your resume is well-structured and detailed.`;
+    tips = ['Add quantifiable achievements (e.g. "reduced load time by 40%")', 'Include links to GitHub / portfolio'];
+  } else if (score >= 65) {
+    label = '📄 Good Resume';
+    sub = `${skillCount} skills detected. A few improvements could make it stand out more.`;
+    tips = ['Add a concise professional summary at the top', 'List skills in a dedicated section', 'Quantify your impact in each role'];
+  } else {
+    label = '✏️ Needs Work';
+    sub = `${skillCount} skills detected. Your resume needs more detail to compete effectively.`;
+    tips = ['Expand your work experience descriptions', 'Add a skills section with relevant technologies', 'Include education details and certifications'];
+  }
+
+  document.getElementById('score-title').textContent = label;
+  document.getElementById('score-sub').textContent = sub;
+  const tipsEl = document.getElementById('resume-tips');
+  tipsEl.innerHTML = tips.map(t => `<div class="resume-tip">${t}</div>`).join('');
+}
+
+/* ── Utility ── */
+function formatBytes(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/(1024*1024)).toFixed(1) + ' MB';
+}
+
+/* ── Backend integration note (for Django view) ──────────────────────
+   In views.py, handle the resume_file in POST:
+
+   def index(request):
+     if request.method == 'POST':
+       resume_file = request.FILES.get('resume_file')
+       if resume_file:
+         skills = extract_skills_from_resume(resume_file)
+         # pass extracted skills into context
+       ...
+
+   def extract_skills_from_resume(file):
+     import pdfplumber, re
+     known = ['Python','React','SQL','Docker','AWS', ...]
+     text = ''
+     if file.name.endswith('.pdf'):
+       with pdfplumber.open(file) as pdf:
+         text = ' '.join(p.extract_text() or '' for p in pdf.pages)
+     elif file.name.endswith('.docx'):
+       from docx import Document
+       doc = Document(file)
+       text = ' '.join(p.text for p in doc.paragraphs)
+     return [s for s in known if s.lower() in text.lower()]
+──────────────────────────────────────────────────────────────────── */
 </script>
 
 </body>
