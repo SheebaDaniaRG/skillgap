@@ -68,14 +68,34 @@ def skill_gap_view(request):
 
     if request.method == "POST":
 
-        role = request.POST.get("role", role)
-        city = request.POST.get("city", city)
+        # Handles BOTH manual + resume mode
+        role = request.POST.get("role") or request.POST.get("role_resume") or role
+        city = request.POST.get("city") or request.POST.get("city_resume") or city
 
         # ===== INPUT =====
-        if request.FILES.get("resume"):
-            file = request.FILES["resume"]
-            text = extract_text_from_pdf(file)
-            user_skills_list = extract_skills(text)
+        if request.FILES.get("resume_file"):
+            file = request.FILES["resume_file"]
+
+            try:
+                text = extract_text_from_pdf(file)
+
+                # DEBUG RESUME TEXT
+                print("========== RESUME TEXT ==========")
+                print(text[:3000])
+                print("=================================")
+
+                user_skills_list = extract_skills(text)
+
+                # DEBUG SKILLS FOUND
+                print("========== SKILLS FOUND ==========")
+                print(user_skills_list)
+                print("==================================")
+
+            except Exception as e:
+                print("Resume parsing error:", str(e))
+                text = ""
+                user_skills_list = []
+
         else:
             user_skills = request.POST.get("skills", "")
             user_skills_list = [
@@ -97,7 +117,7 @@ def skill_gap_view(request):
         # ===== JOBS =====
         jobs = get_jobs(role, city)
 
-        # 🔥 DEBUG (VERY IMPORTANT)
+        # DEBUG JOBS
         print("========== DEBUG ==========")
         print("ROLE:", role)
         print("CITY:", city)
@@ -109,6 +129,22 @@ def skill_gap_view(request):
 
         # ===== ROADMAP =====
         roadmap = build_roadmap(missing_skills)
+
+        # ===== SAVE USER HISTORY =====
+        if request.user.is_authenticated:
+            try:
+                from users.models import SkillGapHistory
+
+                SkillGapHistory.objects.create(
+                    user=request.user,
+                    resume_text=", ".join(user_skills_list),
+                    missing_skills=", ".join(missing_skills),
+                    recommended_courses=", ".join(
+                        [course["title"] for course in courses]
+                    )
+                )
+            except Exception as e:
+                print("History save error:", str(e))
 
     return render(request, "dashboard.html", {
         "score": score,
@@ -147,9 +183,18 @@ def trending_skills(request):
 
 def role_explorer(request):
     roles = [
-        {"name": "Full Stack Developer", "skills": ["React", "Node.js", "Docker", "AWS"]},
-        {"name": "Backend Developer", "skills": ["Django", "SQL", "Redis"]},
-        {"name": "Frontend Developer", "skills": ["React", "CSS", "TypeScript"]},
+        {
+            "name": "Full Stack Developer",
+            "skills": ["React", "Node.js", "Docker", "AWS"]
+        },
+        {
+            "name": "Backend Developer",
+            "skills": ["Django", "SQL", "Redis"]
+        },
+        {
+            "name": "Frontend Developer",
+            "skills": ["React", "CSS", "TypeScript"]
+        },
     ]
     return render(request, "roles.html", {"roles": roles})
 

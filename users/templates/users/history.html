@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillGap.in — History</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #050505;
+  --bg2:       #0d0d0d;
+  --bg3:       #111111;
+  --card:      rgba(255,255,255,0.03);
+  --card-b:    rgba(255,255,255,0.07);
+  --primary:   #ff6b00;
+  --primary2:  #ff8c38;
+  --primary3:  #ff4500;
+  --glow:      rgba(255,107,0,0.18);
+  --glow2:     rgba(255,107,0,0.08);
+  --txt:       #f0ede8;
+  --txt2:      #9a9590;
+  --txt3:      #5a5652;
+  --success:   #22c55e;
+  --danger:    #ef4444;
+  --sidebar-w: 260px;
+  --radius:    14px;
+  --radius-lg: 20px;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--txt);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--primary3); border-radius: 2px; }
+
+/* SIDEBAR */
+.sidebar {
+  width: var(--sidebar-w);
+  height: 100vh;
+  position: fixed;
+  top: 0; left: 0;
+  background: rgba(13,13,13,0.6);
+  backdrop-filter: blur(28px) saturate(1.4);
+  border-right: 1px solid rgba(255,107,0,0.1);
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.sidebar::before {
+  content: '';
+  position: absolute;
+  top: -60%; left: -40%;
+  width: 180%; height: 180%;
+  background: radial-gradient(ellipse at 30% 40%, rgba(255,107,0,0.06), transparent 60%);
+  pointer-events: none;
+}
+
+.sidebar-logo { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.sidebar-logo h1 {
+  font-size: 22px; font-weight: 800; letter-spacing: -0.5px;
+  background: linear-gradient(135deg, var(--primary), var(--primary2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.sidebar-logo span { font-size: 11px; color: var(--txt3); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-top: 2px; }
+
+.nav-section { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--txt3); padding: 12px 0 4px; }
+
+.sidebar a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; text-decoration: none; color: var(--txt2);
+  font-size: 13.5px; font-weight: 500; border-radius: 10px;
+  transition: all 0.2s ease; border: 1px solid transparent;
+}
+.sidebar a:hover, .sidebar a.active { background: rgba(255,107,0,0.08); color: var(--txt); border-color: rgba(255,107,0,0.15); }
+.sidebar a.active { background: rgba(255,107,0,0.12); color: var(--primary2); }
+.sidebar a .nav-icon { width: 18px; height: 18px; opacity: 0.6; flex-shrink: 0; }
+.sidebar a:hover .nav-icon, .sidebar a.active .nav-icon { opacity: 1; }
+
+.sidebar-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 11.5px; color: var(--txt3); }
+
+/* MAIN */
+.main { margin-left: var(--sidebar-w); padding: 40px 44px; min-height: 100vh; max-width: calc(var(--sidebar-w) + 900px); }
+
+/* PAGE HEADER */
+.page-header { margin-bottom: 36px; }
+.page-header .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--primary); margin-bottom: 6px; }
+.page-header h2 { font-size: 30px; font-weight: 800; letter-spacing: -0.6px; color: var(--txt); }
+.page-header h2 .accent { color: var(--primary); }
+
+/* CARDS */
+.card {
+  background: var(--card); border: 1px solid var(--card-b);
+  border-radius: var(--radius-lg); padding: 24px 28px; margin-bottom: 20px;
+  position: relative; overflow: hidden; transition: border-color 0.3s ease, transform 0.3s ease;
+}
+.card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,107,0,0.3), transparent);
+  opacity: 0; transition: opacity 0.3s ease;
+}
+.card:hover { border-color: rgba(255,107,0,0.2); }
+.card:hover::before { opacity: 1; }
+
+.card-title {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--txt3); margin-bottom: 18px;
+  display: flex; align-items: center; gap: 8px;
+}
+.card-title::before { content: ''; display: block; width: 14px; height: 2px; background: var(--primary); border-radius: 1px; }
+
+/* HISTORY ITEM */
+.history-item {
+  position: relative;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  margin-bottom: 14px;
+  transition: border-color 0.25s, transform 0.25s;
+  overflow: hidden;
+}
+.history-item::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--primary), var(--primary3));
+  border-radius: 2px;
+}
+.history-item:hover {
+  border-color: rgba(255,107,0,0.2);
+  transform: translateX(4px);
+}
+.history-item:last-child { margin-bottom: 0; }
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.history-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--txt3);
+  letter-spacing: 0.04em;
+}
+.history-date svg { opacity: 0.5; }
+
+.history-index {
+  width: 26px; height: 26px;
+  border-radius: 8px;
+  background: rgba(255,107,0,0.1);
+  border: 1px solid rgba(255,107,0,0.2);
+  color: var(--primary);
+  font-size: 11px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.history-body { display: flex; flex-direction: column; gap: 14px; }
+
+.history-section-label {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--txt3); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.history-section-label::before { content: ''; display: block; width: 10px; height: 1.5px; background: var(--primary); border-radius: 1px; }
+
+.history-resume-text {
+  font-size: 13px; color: var(--txt2); font-weight: 500;
+  line-height: 1.6;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 12px 14px;
+  max-height: 80px;
+  overflow: hidden;
+  position: relative;
+}
+.history-resume-text::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 30px;
+  background: linear-gradient(transparent, rgba(17,17,17,0.9));
+  border-radius: 0 0 10px 10px;
+}
+
+.skills-row { display: flex; flex-wrap: wrap; gap: 7px; }
+
+.skill-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 7px;
+  font-size: 12px; font-weight: 600;
+  transition: transform 0.18s;
+  cursor: default;
+}
+.skill-pill:hover { transform: translateY(-2px) scale(1.04); }
+.skill-pill.miss {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.2);
+  color: #f87171;
+}
+.skill-pill.course {
+  background: rgba(255,107,0,0.08);
+  border: 1px solid rgba(255,107,0,0.18);
+  color: var(--primary2);
+}
+
+/* EMPTY STATE */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 64px 32px; text-align: center;
+  gap: 16px;
+}
+.empty-icon {
+  width: 64px; height: 64px;
+  border-radius: 18px;
+  background: rgba(255,107,0,0.06);
+  border: 1px solid rgba(255,107,0,0.15);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 4px;
+}
+.empty-title { font-size: 18px; font-weight: 800; color: var(--txt); letter-spacing: -0.3px; }
+.empty-sub { font-size: 13px; color: var(--txt3); font-weight: 500; max-width: 280px; line-height: 1.6; }
+
+/* BACK LINK */
+.back-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: var(--txt3); font-size: 13px; font-weight: 600;
+  text-decoration: none;
+  padding: 8px 14px;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 9px;
+  transition: all 0.2s;
+  margin-bottom: 28px;
+}
+.back-link:hover { color: var(--txt); border-color: rgba(255,107,0,0.2); background: rgba(255,107,0,0.05); }
+
+/* STAT ROW */
+.history-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 12px; margin-bottom: 20px;
+}
+.stat-mini {
+  background: var(--card); border: 1px solid var(--card-b);
+  border-radius: var(--radius); padding: 16px 18px;
+  transition: border-color 0.2s;
+}
+.stat-mini:hover { border-color: rgba(255,107,0,0.2); }
+.stat-mini-val { font-size: 26px; font-weight: 800; letter-spacing: -1px; color: var(--txt); line-height: 1; margin-bottom: 4px; }
+.stat-mini-val .accent { color: var(--primary); font-size: 18px; }
+.stat-mini-label { font-size: 11px; font-weight: 600; color: var(--txt3); text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* PARTICLES */
+.particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.particle { position: absolute; width: 1px; height: 1px; background: var(--primary); border-radius: 50%; opacity: 0; }
+
+#cursor-glow {
+  position: fixed; width: 320px; height: 320px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,107,0,0.05) 0%, transparent 70%);
+  pointer-events: none; z-index: 1; transform: translate(-50%, -50%);
+}
+
+.reveal { opacity: 0; transform: translateY(22px); }
+
+@media (max-width: 900px) {
+  .sidebar { transform: translateX(-100%); }
+  .main { margin-left: 0; padding: 28px 20px; }
+  .history-stats { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div id="cursor-glow"></div>
+<div class="particles" id="particles"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <h1>SkillGap.in</h1>
+    <span>Career Intelligence</span>
+  </div>
+
+  <div class="nav-section">Navigation</div>
+
+  <a href="/">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
+    My Gap Report
+  </a>
+  <a href="/jobs/trending/">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
+    </svg>
+    Trending Skills
+  </a>
+  <a href="/jobs/roles/">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+    </svg>
+    Role Explorer
+  </a>
+  <a href="/jobs/city/">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="10" r="3"/><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z"/>
+    </svg>
+    City Demand Map
+  </a>
+  <a href="/jobs/courses/">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+    </svg>
+    Courses
+  </a>
+  <a href="{% url 'profile' %}">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+    </svg>
+    Profile
+  </a>
+  <a href="{% url 'history' %}" class="active">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+    </svg>
+    History
+  </a>
+
+  <div class="sidebar-footer">Data updated weekly &bull; v2.4</div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <a href="{% url 'profile' %}" class="back-link reveal">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to Profile
+  </a>
+
+  <div class="page-header reveal">
+    <div class="eyebrow">Your Journey</div>
+    <h2>Analysis <span class="accent">History</span></h2>
+  </div>
+
+  {% if history %}
+
+  <!-- MINI STATS -->
+  <div class="history-stats">
+    <div class="stat-mini reveal">
+      <div class="stat-mini-val">{{ history|length }}<span class="accent"> scans</span></div>
+      <div class="stat-mini-label">Total Analyses</div>
+    </div>
+    <div class="stat-mini reveal" style="animation-delay:0.08s">
+      <div class="stat-mini-val" id="total-missing-count">—</div>
+      <div class="stat-mini-label">Skills Identified</div>
+    </div>
+    <div class="stat-mini reveal" style="animation-delay:0.16s">
+      <div class="stat-mini-val" id="total-courses-count">—</div>
+      <div class="stat-mini-label">Courses Recommended</div>
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <div class="card-title">Past Analyses</div>
+
+    {% for item in history %}
+    <div class="history-item">
+      <div class="history-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div class="history-index">{{ forloop.counter }}</div>
+          <div class="history-date">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            {{ item.created_at }}
+          </div>
+        </div>
+      </div>
+
+      <div class="history-body">
+
+        {% if item.resume_text %}
+        <div>
+          <div class="history-section-label">Resume Snapshot</div>
+          <div class="history-resume-text">{{ item.resume_text }}</div>
+        </div>
+        {% endif %}
+
+        {% if item.missing_skills %}
+        <div>
+          <div class="history-section-label">Missing Skills</div>
+          <div class="skills-row">
+            {% for skill in item.missing_skills %}
+              <span class="skill-pill miss">+ {{ skill }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if item.recommended_courses %}
+        <div>
+          <div class="history-section-label">Recommended Courses</div>
+          <div class="skills-row">
+            {% for course in item.recommended_courses %}
+              <span class="skill-pill course">📚 {{ course }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+    {% endfor %}
+
+  </div>
+
+  {% else %}
+
+  <div class="card reveal">
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <div class="empty-title">No history yet</div>
+      <div class="empty-sub">Run your first skill gap analysis to see results saved here automatically.</div>
+      <a href="/" style="display:inline-flex;align-items:center;gap:8px;margin-top:8px;padding:10px 22px;background:var(--primary);color:#fff;text-decoration:none;border-radius:10px;font-size:13px;font-weight:700;transition:all 0.2s;box-shadow:0 4px 20px rgba(255,107,0,0.25);">
+        Start Analysing →
+      </a>
+    </div>
+  </div>
+
+  {% endif %}
+
+</main>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+const glow = document.getElementById('cursor-glow');
+document.addEventListener('mousemove', e => {
+  gsap.to(glow, { x: e.clientX, y: e.clientY, duration: 0.5, ease: 'power2.out' });
+});
+
+const sidebar = document.getElementById('sidebar');
+document.addEventListener('mousemove', e => {
+  const cx = window.innerWidth/2, cy = window.innerHeight/2;
+  gsap.to(sidebar, { rotateX: ((e.clientY-cy)/cy)*3.5, rotateY: ((e.clientX-cx)/cx)*-2.5, duration:1.2, ease:'power2.out', transformPerspective:900 });
+});
+
+gsap.utils.toArray('.reveal').forEach((el, i) => {
+  gsap.fromTo(el, { opacity:0, y:28 }, {
+    opacity:1, y:0, duration:0.7, delay:i*0.06, ease:'power3.out',
+    scrollTrigger:{ trigger:el, start:'top 88%', toggleActions:'play none none none' },
+  });
+});
+
+gsap.fromTo('.sidebar a', { opacity:0, x:-18 }, { opacity:1, x:0, stagger:0.07, duration:0.5, ease:'power3.out', delay:0.2 });
+
+gsap.fromTo('.history-item', { opacity:0, x:-14 }, {
+  opacity:1, x:0, stagger:0.08, duration:0.55, ease:'power3.out', delay:0.3,
+  scrollTrigger:{ trigger:'.history-item', start:'top 88%' }
+});
+
+gsap.fromTo('.skill-pill', { opacity:0, scale:0.75, y:6 }, {
+  opacity:1, scale:1, y:0, stagger:0.03, duration:0.4, ease:'back.out(2)', delay:0.5,
+  scrollTrigger:{ trigger:'.skills-row', start:'top 90%' }
+});
+
+// Particles
+(function(){
+  const c = document.getElementById('particles');
+  for(let i=0;i<24;i++){
+    const p=document.createElement('div'); p.className='particle';
+    p.style.left=Math.random()*100+'%'; p.style.top=Math.random()*100+'%';
+    c.appendChild(p);
+    gsap.to(p,{opacity:0.5+Math.random()*0.5,scale:2+Math.random()*4,y:'-='+(60+Math.random()*120),x:(Math.random()-0.5)*80,duration:4+Math.random()*8,delay:Math.random()*6,repeat:-1,yoyo:true,ease:'sine.inOut'});
+  }
+})();
+</script>
+</body>
+</html>

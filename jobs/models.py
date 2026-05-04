@@ -1,6 +1,5 @@
 from django.db import models
 from .utils import extract_skills
-from django.contrib.auth.models import User
 
 
 class Skill(models.Model):
@@ -31,9 +30,3 @@ class Job(models.Model):
 
     def __str__(self):
         return self.title
-    
-    # models.py
-
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    location = models.CharField(max_length=255)
