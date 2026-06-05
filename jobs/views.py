@@ -171,32 +171,64 @@ def job_search(request):
 
 # ================= EXTRA PAGES =================
 def trending_skills(request):
-    data = [
-        ("TypeScript", 91),
-        ("Docker", 87),
-        ("Next.js", 82),
-        ("AWS", 79),
-        ("GraphQL", 68),
+
+    jobs = get_jobs("python developer", "India")
+
+    skill_keywords = [
+        "python", "django", "flask", "sql",
+        "mysql", "postgresql", "mongodb",
+        "aws", "docker", "git", "linux",
+        "react", "javascript", "typescript",
+        "redis", "kubernetes"
     ]
-    return render(request, "trending.html", {"data": data})
+
+    skill_count = {}
+
+    for job in jobs:
+
+        text = " ".join([
+            str(job.get("title", "")),
+            str(job.get("company", "")),
+        ]).lower()
+
+        for skill in skill_keywords:
+
+            if skill.lower() in text:
+                skill_count[skill] = skill_count.get(skill, 0) + 1
+
+    total = sum(skill_count.values()) or 1
+
+    data = []
+
+    for skill, count in sorted(
+        skill_count.items(),
+        key=lambda x: x[1],
+        reverse=True
+    ):
+        percentage = round((count / total) * 100)
+        data.append((skill.upper(), percentage))
+
+    return render(
+        request,
+        "trending.html",
+        {"data": data}
+    )
 
 
 def role_explorer(request):
+
     roles = [
         {
-            "name": "Full Stack Developer",
-            "skills": ["React", "Node.js", "Docker", "AWS"]
-        },
-        {
-            "name": "Backend Developer",
-            "skills": ["Django", "SQL", "Redis"]
-        },
-        {
-            "name": "Frontend Developer",
-            "skills": ["React", "CSS", "TypeScript"]
-        },
+            "name": "Python Developer",
+            "skills": ["Python", "Django", "SQL"]
+        }
     ]
-    return render(request, "roles.html", {"roles": roles})
+
+    return render(
+        request,
+        "roles.html",
+        {"roles": roles}
+    )
 
 
 def city_demand(request):

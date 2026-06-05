@@ -1,23 +1,26 @@
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+import dj_database_url
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-(cly8z-_+jb5me7=wrcpp95hfaz!w^n5lacv5^kloypa3y$&!i'
+# SECURITY: load secret key from env in production
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-(cly8z-_+jb5me7=wrcpp95hfaz!w^n5lacv5^kloypa3y$&!i')
 
-DEBUG = True  # Change to False for production
+# DEBUG should be False in production; controlled via env var
+DEBUG = os.getenv('DEBUG', 'False').lower() in ('1', 'true', 'yes')
 
-ALLOWED_HOSTS = [
-    "skillgap-production-6ab4.up.railway.app",
-    "127.0.0.1",
-    "localhost",
-]
+# Hosts allowed to serve the app - set via env or fallback to localhost
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://skillgap-production-6ab4.up.railway.app",
-]
+# CSRF trusted origins (comma-separated) and secure cookies in production
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if os.getenv('CSRF_TRUSTED_ORIGINS') else []
 
-CSRF_COOKIE_SECURE = False
-SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
 
 # Application definition
 INSTALLED_APPS = [
@@ -44,6 +47,7 @@ SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -74,10 +78,9 @@ WSGI_APPLICATION = 'skillgap.wsgi.application'
 
 # Database
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=os.getenv("DATABASE_URL")
+    )
 }
 
 # Password validation
@@ -104,6 +107,9 @@ USE_TZ = True
 
 # Static files
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+# Use WhiteNoise to serve compressed static files in production
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

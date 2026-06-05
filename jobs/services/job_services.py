@@ -1,81 +1,79 @@
-# ================= JOB DATA =================
+# ================= LIVE JOB SERVICE =================
 
-import random
+import requests
+import os
+from dotenv import load_dotenv
 
-CITIES = ["Bangalore", "Hyderabad", "Mumbai", "Pune", "Chennai"]
+load_dotenv()
 
-COMPANIES = [
-    "TCS", "Infosys", "Wipro", "HCL", "Zoho",
-    "Freshworks", "Capgemini", "Accenture",
-    "StartupX", "TechNova", "CodeLabs",
-    "DevWorks", "Cloudify", "NextGenSoft"
-]
+API_KEY = os.getenv("RAPIDAPI_KEY")
 
-JOB_TEMPLATES = {
-    "backend": [
-        "Backend Developer", "Python Developer", "Django Developer", "API Engineer"
-    ],
-    "frontend": [
-        "Frontend Developer", "React Developer", "UI Engineer"
-    ],
-    "fullstack": [
-        "Full Stack Developer", "MERN Developer", "Web Developer"
-    ],
-    "ml": [
-        "Machine Learning Engineer", "Data Scientist", "AI Engineer"
-    ]
-}
-
-
-# 🔥 AUTO GENERATE LARGE DATASET
-JOBS = []
-
-def generate_jobs():
-    for city in CITIES:
-        for category, titles in JOB_TEMPLATES.items():
-            for _ in range(8):  # 👉 8 per category per city = 30+ jobs/city
-                JOBS.append({
-                    "title": random.choice(titles),
-                    "company": random.choice(COMPANIES),
-                    "location": city,
-                    "category": category,
-                    "url": f"https://www.linkedin.com/jobs/search/?keywords={category}&location={city}"
-                })
-
-generate_jobs()
-
-
-# ================= ROLE MAP =================
 
 ROLE_CATEGORY = {
-    "Full Stack Developer": "fullstack",
-    "Frontend Developer": "frontend",
-    "Backend Developer": "backend",
-    "Machine Learning Engineer": "ml",
-    "Data Scientist": "ml"
+    "Full Stack Developer": "full stack developer",
+    "Frontend Developer": "frontend developer",
+    "Backend Developer": "backend developer",
+    "Machine Learning Engineer": "machine learning engineer",
+    "Data Scientist": "data scientist",
 }
 
 
-# ================= FINAL SMART MATCH =================
+def generate_jobs(role="software developer", city="India"):
+
+    url = "https://jsearch.p.rapidapi.com/search"
+
+    headers = {
+        "X-RapidAPI-Key": API_KEY,
+        "X-RapidAPI-Host": "jsearch.p.rapidapi.com"
+    }
+
+    params = {
+        "query": f"{role} jobs in {city}, India",
+        "page": "1",
+        "num_pages": "1"
+    }
+
+    try:
+
+        response = requests.get(
+            url,
+            headers=headers,
+            params=params,
+            timeout=10
+        )
+
+        result = response.json()
+
+        print("========== API RESPONSE ==========")
+        print(result)
+
+        jobs = []
+
+        for job in result.get("data", []):
+
+            jobs.append({
+                "title": job.get("job_title"),
+                "company": job.get("employer_name"),
+                "location": job.get("job_location"),
+                "link": job.get("job_apply_link"),
+                "salary": job.get("job_salary_string"),
+                "posted": job.get("job_posted_at")
+            })
+
+        return jobs
+
+    except Exception as e:
+
+        print("Job fetch error:", e)
+
+        return []
+
 
 def get_jobs(role, city):
-    return [
-        {
-            "title": "Full Stack Developer",
-            "company": "TCS",
-            "location": city,
-            "link": "https://www.tcs.com/careers"
-        },
-        {
-            "title": "MERN Developer",
-            "company": "Accenture",
-            "location": city,
-            "link": "https://www.accenture.com/in-en/careers"
-        },
-        {
-            "title": "Web Developer",
-            "company": "Infosys",
-            "location": city,
-            "link": "https://career.infosys.com/"
-        }
-    ]
+
+    search_role = ROLE_CATEGORY.get(role, role)
+
+    return generate_jobs(
+        role=search_role,
+        city=city
+    )
